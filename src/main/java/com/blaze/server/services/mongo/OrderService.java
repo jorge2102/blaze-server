@@ -1,12 +1,18 @@
 package com.blaze.server.services.mongo;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.blaze.server.models.Order;
 import com.blaze.server.repositories.mongo.OrderRepository;
 import com.blaze.server.services.interfaces.IOrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -33,21 +39,34 @@ public class OrderService implements IOrderService {
     }
 
     public Order update(Order item){
-        Order oldUser = orderRepository.findById(item.getId()).orElse(null);
-        oldUser.setStatus(item.getStatus());
-        oldUser.setDate(item.getDate());
-        oldUser.setCustomer(item.getCustomer());
-        oldUser.setTaxes(item.getTaxes());
-        oldUser.setTotalTaxes(item.getTotalTaxes());
-        oldUser.setTotalAmount(item.getTotalAmount());
-        oldUser.setOrderProducts(item.getOrderProducts());
-        orderRepository.save(oldUser);
+        Order order = orderRepository.findById(item.getId()).orElse(null);
+        order.setStatus(item.getStatus());
+        order.setDate(item.getDate());
+        order.setCustomer(item.getCustomer());
+        order.setTaxes(item.getTaxes());
+        order.setTotalTaxes(item.getTotalTaxes());
+        order.setTotalAmount(item.getTotalAmount());
+        order.setOrderProducts(item.getOrderProducts());
+        orderRepository.save(order);
         
-        return oldUser;
+        return order;
     }
 
     public void delete(String id) {
         orderRepository.deleteById(id);
     }
     
+    public Map<String, Object> getAllInPage(int pageNo, int size, String sortBy) {
+        Sort sort = Sort.by(sortBy);
+        Pageable pageable = PageRequest.of(pageNo, size, sort);
+        Page<Order> page = orderRepository.findAll(pageable);
+        
+        Map<String, Object> response = new HashMap<String, Object>();
+        response.put("data", page.getContent());
+        response.put("totalPage", page.getTotalPages());
+        response.put("totalElement", page.getTotalElements());
+        response.put("currentPage", page.getNumber());
+
+        return response;
+    }
 }

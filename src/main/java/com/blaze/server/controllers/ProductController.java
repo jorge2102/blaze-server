@@ -1,6 +1,7 @@
 package com.blaze.server.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import com.blaze.server.models.Product;
 import com.blaze.server.services.mongo.ProductService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/product")
@@ -48,5 +50,14 @@ public class ProductController {
     public String DeleteProduct(@PathVariable String id) {
         productService.delete(id);
         return id;
+    }
+
+    @GetMapping("/page")
+    public Map<String, Object> GetOrdersPage(
+        @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
+        @RequestParam(name = "pageSize", defaultValue = "5") int size,
+        @RequestParam(name = "sortBy", defaultValue = "id") String sortBy) {
+
+        return productService.getAllInPage(pageNo, size, sortBy);
     }
 }
